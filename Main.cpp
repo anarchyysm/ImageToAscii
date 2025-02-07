@@ -1,4 +1,4 @@
-
+#include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
@@ -26,6 +26,16 @@ int main()
     // é importante chamar named windows pra alterar propriedades da janela.
     cv::namedWindow("Display Image", cv::WINDOW_NORMAL );
     imshow("Display Image", img); 
+
+    // tentando fazer uma imagem pixelizada
+    int blockSize = 10;
+    cv::Mat smallImg, pixelizedImg;
+
+    resize(img, smallImg, cv::Size(img.cols / blockSize, img.rows / blockSize), 0, 0, cv::INTER_LINEAR);
+    resize(smallImg, pixelizedImg, cv::Size(img.cols, img.rows), 0, 0, cv::INTER_NEAREST);
+    
+    cv::namedWindow("Pixelized Image", cv::WINDOW_NORMAL);
+    imshow("Pixelized Image", pixelizedImg);
 
     cv::waitKey(0); // espera que uma tecla seja precionada, se não o programa fecha muito rapido
 
