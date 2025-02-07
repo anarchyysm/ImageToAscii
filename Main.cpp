@@ -1,3 +1,4 @@
+#include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -28,7 +29,7 @@ int main()
     imshow("Display Image", img); 
 
     // tentando fazer uma imagem pixelizada
-    int blockSize = 10;
+    int blockSize = 20;
     cv::Mat smallImg, pixelizedImg;
 
     resize(img, smallImg, cv::Size(img.cols / blockSize, img.rows / blockSize), 0, 0, cv::INTER_LINEAR);
@@ -36,6 +37,24 @@ int main()
     
     cv::namedWindow("Pixelized Image", cv::WINDOW_NORMAL);
     imshow("Pixelized Image", pixelizedImg);
+    
+    // niveis de intensidade do grayscale @#%8&WM0QO*+o=:-. 
+
+    // int width = img.cols;
+    // int height = img.rows;
+
+    // redimensionar imagem sem perder a proporção
+
+    double proportion = static_cast<double>(img.rows) / static_cast<double>(img.cols);
+    // width - largura -------- Height - altura
+    int newWidth = 320;
+    int newHeight = static_cast<int>(newWidth * proportion);   
+    
+    cv::Mat resizedImage;
+    cv::resize(pixelizedImg, resizedImage, cv::Size(newWidth, newHeight));
+
+    cv::namedWindow("Resized Image", cv::WINDOW_NORMAL);
+    imshow("Resized Image", resizedImage);
 
     cv::waitKey(0); // espera que uma tecla seja precionada, se não o programa fecha muito rapido
 
