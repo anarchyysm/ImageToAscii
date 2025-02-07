@@ -12,7 +12,7 @@ int main()
     std::string image_path = cv::samples::findFile("meninoney.png");
 //  imread serve pra ler a imagem, e o IMREAD_COLOR significar que vai receber os bytes rbg
 //  mas existe outros metodos como IMREAD_UNCHANGED e IMREAD_GRAYSCALE
-    cv::Mat img = cv::imread(image_path, cv::IMREAD_COLOR); // mat server para armazenamento/manipulação/conversao de imagem
+    cv::Mat img = cv::imread(image_path, cv::IMREAD_GRAYSCALE); // mat server para armazenamento/manipulação/conversao de imagem
 							    // além de imread tb temos imwrite para escrever arquivos
 							    // como converter o meninonet.png para jpg
 							    // cv::imwrite("meninoney.jpg", img)
