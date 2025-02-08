@@ -5,6 +5,7 @@
 #include <opencv2/highgui.hpp>
 
 #include <iostream>
+#include <string>
 
 // using namespace cv;
 
@@ -47,14 +48,33 @@ int main()
 
     double proportion = static_cast<double>(img.rows) / static_cast<double>(img.cols);
     // width - largura -------- Height - altura
-    int newWidth = 320;
+    int newWidth = 150;
     int newHeight = static_cast<int>(newWidth * proportion);   
     
     cv::Mat resizedImage;
     cv::resize(pixelizedImg, resizedImage, cv::Size(newWidth, newHeight));
 
-    cv::namedWindow("Resized Image", cv::WINDOW_NORMAL);
+    cv::namedWindow("Resized Image", cv::WINDOW_AUTOSIZE);
     imshow("Resized Image", resizedImage);
+
+    // transformar imagem em ascii
+    //std::string ascii_chars = "@#%8&WM0QO*+o=:-. ";
+    std::string ascii_chars = " .-:=o+*OQ0MW&8%#@";
+    int num_chars = ascii_chars.length();
+
+    if (resizedImage.channels() != 1){
+      std::cerr << "The image needs to be in grayscale";
+    }  
+
+    for (int y = 0; y < resizedImage.rows; ++y){
+      std::string ascii_line;
+      for (int x = 0; x < resizedImage.cols; ++x){
+        int intensity = resizedImage.at<uchar>(y, x);
+        char ascii_char = ascii_chars[intensity * num_chars / 256];
+        ascii_line += ascii_char;
+      }
+      std::cout << " " << ascii_line << std::endl;
+    }
 
     cv::waitKey(0); // espera que uma tecla seja precionada, se não o programa fecha muito rapido
 
