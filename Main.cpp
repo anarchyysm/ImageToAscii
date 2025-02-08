@@ -45,11 +45,12 @@ int main()
     // int height = img.rows;
 
     // redimensionar imagem sem perder a proporção
-
+    
     double proportion = static_cast<double>(img.rows) / static_cast<double>(img.cols);
+    double aspectRatio = 1.8;
     // width - largura -------- Height - altura
     int newWidth = 150;
-    int newHeight = static_cast<int>(newWidth * proportion);   
+    int newHeight = static_cast<int>(newWidth * proportion / aspectRatio);   
     
     cv::Mat resizedImage;
     cv::resize(pixelizedImg, resizedImage, cv::Size(newWidth, newHeight));
@@ -58,8 +59,9 @@ int main()
     imshow("Resized Image", resizedImage);
 
     // transformar imagem em ascii
-    //std::string ascii_chars = "@#%8&WM0QO*+o=:-. ";
-    std::string ascii_chars = " .-:=o+*OQ0MW&8%#@";
+    std::string ascii_chars = "@#%8&WM0QO*+o=:-. ";
+    //std::string ascii_chars = " .-:=o+*OQ0MW&8%#@";
+    //std::string ascii_chars = "@%#*+=-:.    1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     int num_chars = ascii_chars.length();
 
     if (resizedImage.channels() != 1){
