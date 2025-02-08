@@ -11,7 +11,7 @@
 
 int main()
 {
-    std::string image_path = cv::samples::findFile("meninoney.png");
+    std::string image_path = cv::samples::findFile("zebra.png");
 //  imread serve pra ler a imagem, e o IMREAD_COLOR significar que vai receber os bytes rbg
 //  mas existe outros metodos como IMREAD_UNCHANGED e IMREAD_GRAYSCALE
     cv::Mat img = cv::imread(image_path, cv::IMREAD_GRAYSCALE); // mat server para armazenamento/manipulação/conversao de imagem
@@ -30,7 +30,7 @@ int main()
     imshow("Display Image", img); 
 
     // tentando fazer uma imagem pixelizada
-    int blockSize = 20;
+    int blockSize = 6;
     cv::Mat smallImg, pixelizedImg;
 
     resize(img, smallImg, cv::Size(img.cols / blockSize, img.rows / blockSize), 0, 0, cv::INTER_LINEAR);
@@ -59,9 +59,12 @@ int main()
     imshow("Resized Image", resizedImage);
 
     // transformar imagem em ascii
-    std::string ascii_chars = "@#%8&WM0QO*+o=:-. ";
+    //std::string ascii_chars = "@#%8&WM0QO*+o=:-. ";
     //std::string ascii_chars = " .-:=o+*OQ0MW&8%#@";
-    //std::string ascii_chars = "@%#*+=-:.    1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    //std::string ascii_chars = " .-:=o+*OQ0MW&8%#@123456789";
+    std::string ascii_chars = "  ` .'`^,-~:;<>i!lI?+_1|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao23456789*#MW&8%B@";
+    //std::string ascii_chars = " .:-=+*#%@";
+    //std::string ascii_chars = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
     int num_chars = ascii_chars.length();
 
     if (resizedImage.channels() != 1){
