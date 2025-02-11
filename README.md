@@ -21,19 +21,20 @@ ImageToAscii é um programa escrito em C++ que converte imagens e vídeos em rep
 
 ### Compilando o projeto
 ```sh
-mkdir build && cd build
-cmake ..
-make
+ cmake --build cmake-build-debug --target ConvertImageToAscii -j 10
+
 ```
 
 ### Executando o programa
+
+(precisa adicionar imagem na linha de codigo dentro de /cmake-build-debug antes de compilar *temporario*)
 ```sh
-./ImageToAscii <caminho_da_imagem_ou_video>
+./ImageToAscii
 ```
 
-## Exemplo de Uso
-### Entrada: (nao disponivel ainda)
-### Saída: (nao disponivel ainda)
+## Exemplo:
+### Saída: 
+![Foto de exemplo](example.png)
 
 ## Licença
 Este projeto está licenciado sob a [MIT License](LICENSE).
