@@ -29,7 +29,7 @@ ImageToAscii é um programa escrito em C++ que converte imagens e vídeos em rep
 
 (precisa adicionar imagem na linha de codigo dentro de /cmake-build-debug antes de compilar *temporario*)
 ```sh
-./ImageToAscii
+./ConvertImageToAscii
 ```
 
 ## Exemplo:
