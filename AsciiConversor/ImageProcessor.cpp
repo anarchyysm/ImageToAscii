@@ -1,6 +1,6 @@
 #include "ImageProcessor.hpp"
 #include <iostream>
-#include <opencv2/imgproc.hpp>
+//#include <opencv2/imgproc.hpp>
 
 ImageProcessor::ImageProcessor(const std::string& imagePath) {
     image = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);

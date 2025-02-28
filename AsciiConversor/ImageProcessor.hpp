@@ -1,8 +1,8 @@
 #ifndef IMAGE_PROCESSOR_HPP
 #define IMAGE_PROCESSOR_HPP
 
-#include <opencv2/opencv.hpp>
-#include <string>
+#include <Dependencies.hpp>
+#include <string>   
 
 class ImageProcessor {
 public:

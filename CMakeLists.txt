@@ -11,6 +11,7 @@ include_directories(AsciiConversor)
 
 add_executable(ConvertImageToAscii
     Main.cpp
-    AsciiConversor/ImageProcessor.cpp)
+    AsciiConversor/ImageProcessor.cpp
+    AsciiConversor/VideoProcessor.cpp)
 
 target_link_libraries ( ConvertImageToAscii ${OpenCV_LIBS} )

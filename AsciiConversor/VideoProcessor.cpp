@@ -9,12 +9,13 @@
 
 VideoProcessor::VideoProcessor(const std::string &videoPath){
   video = cv::VideoCapture(videoPath);
-  int delay = static_cast<int>(1000 / video.get(cv::CAP_PROP_FPS));
+  delay = static_cast<int>(1000 / video.get(cv::CAP_PROP_FPS));
+
 
 
  //cv::VideoCapture cap("input_video.mp4");
   if(!video.isOpened()){
-    throw std::runtime_error("Cold not read the video: " + videoPath);
+    throw std::runtime_error("Could not read the video: " + videoPath);
   }
 }
 
@@ -25,61 +26,72 @@ void VideoProcessor::displayVideo(const std::string &windowName) {
     
     if (cv::waitKey(delay) >= 0) break;
   }
+  cv::destroyWindow(windowName);
 }
 
 
 std::vector<cv::Mat> VideoProcessor::getPixelizedVideo(int blockSize) {
 
   cv::Mat smallFrame, pixelizedFrame;
+  std::vector<cv::Mat> pixelizedFrames;
+
+  if(!video.isOpened()) return std::vector<cv::Mat>();
+
+  video.set(cv::CAP_PROP_POS_FRAMES,0);
 
   while(video.read(frame)){
     cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
     cv::resize(frame_gray, smallFrame, cv::Size(frame_gray.cols / blockSize, frame_gray.rows / blockSize), 0, 0, cv::INTER_LINEAR);
     cv::resize(smallFrame, pixelizedFrame, cv::Size(frame_gray.cols, frame_gray.rows), 0, 0, cv::INTER_NEAREST);
     
-    return pixelizedFrame;
+    pixelizedFrames.push_back(pixelizedFrame.clone());
   }  
-  return cv::Mat();
+  return pixelizedFrames;
  }
 
 void VideoProcessor::displayPixelizedVideo(const std::string &windowName, int blockSize){
   std::vector<cv::Mat> pixelizedFrames = getPixelizedVideo(blockSize);
   
-  if (!video.isOpened()) return;
+  if (pixelizedFrames.empty()) return;
 
   for(const cv::Mat &frame : pixelizedFrames){
     cv::imshow(windowName, frame);
-    if(cv::waitKey(delay) >= 0) break;
+    if(cv::waitKey(delay) == 'q') break;
   } 
 }
 
 // diplayPixelized pega de -> std::vector<cv::Mat> pixelizedFrames = getPixelizedVideo(blockSize);
 
-std::vector<cv::Mat> VideoProcessor::getResizedVideo(int newWidth, double aspectRatio){
-  
-  std::vector<cv::Mat> pixelizedFrames = getPixelizedVideo(6);
+std::vector<cv::Mat> VideoProcessor::getResizedVideo(int newWidth, double aspectRatio, int blockSize){
+
+  std::vector<cv::Mat> pixelizedFrames = getPixelizedVideo(blockSize);
+
+  if(pixelizedFrames.empty()) return std::vector<cv::Mat>();
+
+  std::vector<cv::Mat> resizedFrames;
   cv::Mat resizedFrame;  
 
-  double proportion = static_cast<int>(frame.rows) / static_cast<double>(frame.cols);
+  double proportion = static_cast<int>(pixelizedFrames[0].rows) / static_cast<double>(pixelizedFrames[0].cols);
   int newHeight = static_cast<int>(newWidth * proportion / aspectRatio);
 
   for(const cv::Mat &frame : pixelizedFrames){
     cv::resize(frame, resizedFrame, cv::Size(newWidth, newHeight));
-    return resizedFrame;
+    resizedFrames.push_back(resizedFrame.clone());
   }
-  return cv::Mat(); 
+
+  return resizedFrames; 
 }
 
 // peguei o pixelizedVideo e o resizedVideo, agora falta o dispayResizedvideo
 
 void VideoProcessor::displayResizedVideo(const std::string &windowName){
-  std::vector<cv::Mat> resizedFrames = getResizedVideo(150, 1.8);
+  std::vector<cv::Mat> resizedFrames = getResizedVideo(150, 1.8, 6);
   
-  if(!video.isOpened()) return;
+  if(resizedFrames.empty()) return; 
 
   for(const cv::Mat &frame : resizedFrames){
     cv::imshow(windowName, frame);
-    if(cv::waitKey(delay) >= 0) break;
+    if(cv::waitKey(delay) == 'q') break;
   }
 }
 
@@ -87,6 +99,7 @@ void VideoProcessor::displayASCIIArt(const std::vector<cv::Mat> &video, const st
   int numChars = asciiChars.length();
 
   for(const cv::Mat &frame : video){
+    if(frame.empty()) continue;
     for(int y = 0; y < frame.rows; y++){
       std::string asciiLine;
       for(int x = 0; x < frame.cols; ++x){
@@ -96,6 +109,7 @@ void VideoProcessor::displayASCIIArt(const std::vector<cv::Mat> &video, const st
       }
       std::cout << " " << asciiLine << std::endl;
     }
-    std::cout << std::endl;
+    //std::cout << std::endl;
+    system("clear");
   }
 }
