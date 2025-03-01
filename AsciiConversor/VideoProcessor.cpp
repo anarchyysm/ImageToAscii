@@ -5,11 +5,15 @@
 #include <stdexcept>
 #include <iostream>
 #include <vector>
+#include <thread>
+#include <chrono>
  
 
 VideoProcessor::VideoProcessor(const std::string &videoPath){
   video = cv::VideoCapture(videoPath);
-  delay = static_cast<int>(1000 / video.get(cv::CAP_PROP_FPS));
+  double fps = video.get(cv::CAP_PROP_FPS);
+  delay = (fps > 0) ? static_cast<int>(1000.0 / fps) : 33;
+  //delay = 1000;
 
 
 
@@ -98,6 +102,11 @@ void VideoProcessor::displayResizedVideo(const std::string &windowName){
 void VideoProcessor::displayASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const{
   int numChars = asciiChars.length();
 
+  //cv::startWindowThread();
+  //cv::namedWindow("hidden", cv::WINDOW_NORMAL);
+  //cv::moveWindow("hidden", -1000, -1000);
+  //cv::resizeWindow("hidden", 1, 1); 
+
   for(const cv::Mat &frame : video){
     if(frame.empty()) continue;
     for(int y = 0; y < frame.rows; y++){
@@ -109,7 +118,8 @@ void VideoProcessor::displayASCIIArt(const std::vector<cv::Mat> &video, const st
       }
       std::cout << " " << asciiLine << std::endl;
     }
-    //std::cout << std::endl;
+    std::cout << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
     system("clear");
   }
 }
