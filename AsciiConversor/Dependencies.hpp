@@ -3,6 +3,14 @@
 
 #include <opencv2/opencv.hpp>
 #include <string>
-// Outros módulos necessários
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
+#include <stdexcept>
+#include <iostream>
+#include <vector>
+#include <thread>
+#include <chrono>
+#include "colors.hpp" 
 
 #endif
