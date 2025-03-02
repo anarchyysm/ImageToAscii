@@ -1,12 +1,5 @@
 #include "VideoProcessor.hpp"
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
-#include <stdexcept>
-#include <iostream>
-#include <vector>
-#include <thread>
-#include <chrono>
+#include "colors.hpp"
  
 
 VideoProcessor::VideoProcessor(const std::string &videoPath){
@@ -101,7 +94,8 @@ void VideoProcessor::displayResizedVideo(const std::string &windowName){
 
 void VideoProcessor::displayASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const{
   int numChars = asciiChars.length();
-
+  //std::string asciiLine;
+  
   //cv::startWindowThread();
   //cv::namedWindow("hidden", cv::WINDOW_NORMAL);
   //cv::moveWindow("hidden", -1000, -1000);
@@ -113,12 +107,23 @@ void VideoProcessor::displayASCIIArt(const std::vector<cv::Mat> &video, const st
       std::string asciiLine;
       for(int x = 0; x < frame.cols; ++x){
         int intensity = frame.at<uchar>(y, x);
+        std::string colorCode = hey::off; 
+        if(intensity < 85){
+          colorCode = hey::black;
+        } else if(intensity < 170){
+          colorCode = hey::grayclaro;
+        } else {
+          colorCode = hey::white;
+        }
         char asciiChar = asciiChars[intensity * numChars / 256];
-        asciiLine += asciiChar;
+        asciiLine += colorCode + asciiChar + hey::off;
       }
       std::cout << " " << asciiLine << std::endl;
     }
     std::cout << std::flush;
+    // gambiarra, o certo era usar cv::waitKey(delay); mas ele só é iniciado após uma serie de eventos na tela
+    // ou seja... pra ele funcionar é preciso iniciar uma tela, mesmo q seja em branco, e eu nao queria isso, pois ia poluir a tela do usuario
+    // com coisas sem sentido (tela preta sem nada), então eu adicionei o delay de forma manual com this_thread sleep e chrono passando o delay
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
     system("clear");
   }
