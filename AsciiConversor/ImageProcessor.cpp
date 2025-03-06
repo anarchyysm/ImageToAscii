@@ -1,9 +1,7 @@
 #include "ImageProcessor.hpp"
-#include <iostream>
-//#include <opencv2/imgproc.hpp>
 
 ImageProcessor::ImageProcessor(const std::string& imagePath) {
-    image = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);
+    image = cv::imread(imagePath);
     if (image.empty()) {
         throw std::runtime_error("Could not read the image: " + imagePath);
     }
@@ -28,16 +26,30 @@ cv::Mat ImageProcessor::getResizedImage(int newWidth, double aspectRatio) const 
     return resizedImage;
 }
 
+std::string getColorCodeImage(cv::Vec3b bgr){
+  int b, g, r;
+  b = bgr[0];
+  g = bgr[1];
+  r = bgr[2];
+
+  std::string code = "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
+
+  return code;
+}
+
 void ImageProcessor::displayASCIIArt(const cv::Mat& img, const std::string& asciiChars) const {
     int numChars = asciiChars.length();
     for (int y = 0; y < img.rows; ++y) {
         std::string asciiLine;
         for (int x = 0; x < img.cols; ++x){
-            int intensity = img.at<uchar>(y, x);
+            cv::Vec3b pixelColor = img.at<cv::Vec3b>(y, x);
+            int intensity = (pixelColor[0] + pixelColor[1] + pixelColor[2]) / 3;
             char asciiChar = asciiChars[intensity * numChars / 256];
-            asciiLine += asciiChar;
+            std::string colorCode = getColorCodeImage(pixelColor);
+            asciiLine += colorCode + asciiChar + color::off;
         }
-        std::cout << " " << asciiLine << std::endl;
+        std::cout << asciiLine << std::endl;
     }
+    std::cout << std::flush;
 }
 

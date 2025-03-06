@@ -95,7 +95,7 @@ void VideoProcessor::displayResizedVideo(const std::string &windowName){
   }
 }
 
-std::string getColorCode(cv::Vec3b bgr){
+std::string getColorCodeVideo(cv::Vec3b bgr){
   int b, g, r;
   b = bgr[0];
   g = bgr[1];
@@ -120,8 +120,8 @@ void VideoProcessor::displayASCIIArt(const std::vector<cv::Mat> &video, const st
     for(int y = 0; y < frame.rows; y++){      
       std::string asciiLine;
       for(int x = 0; x < frame.cols; ++x){
-        int intensity = frame.at<uchar>(y, x);
         cv::Vec3b pixelColor = frame.at<cv::Vec3b>(y, x);
+        int intensity = (pixelColor[0] + pixelColor[1] + pixelColor[2]) / 3;
         //int brightness = (pixelColor[0] + pixelColor[1] + pixelColor[2]) / 3;
         //std::string colorCode = color::off;
         // if(intensity < 40){
@@ -137,7 +137,7 @@ void VideoProcessor::displayASCIIArt(const std::vector<cv::Mat> &video, const st
         // }
         char asciiChar = asciiChars[intensity * numChars / 256];
         //char asciiChar = asciiChars[brightness * numChars / 256];
-        std::string colorCode = getColorCode(pixelColor);
+        std::string colorCode = getColorCodeVideo(pixelColor);
         asciiLine += colorCode + asciiChar + color::off;
         //asciiLine += colorCode + asciiChar + color::off;
       }
