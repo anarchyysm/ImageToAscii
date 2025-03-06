@@ -44,6 +44,7 @@ ImageToAscii é um programa escrito em C++ que converte imagens e vídeos em rep
 - [ ] Otimização do programa (multi thread)
 - [ ] Otimização de buffers
 - [ ] Suporte a GPU Nvidia CUDA (not sure)
+- [ ] Interface grafica - GUI
 
 ## Licença
 Este projeto está licenciado sob a [MIT License](LICENSE).
