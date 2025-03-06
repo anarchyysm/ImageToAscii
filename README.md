@@ -36,6 +36,15 @@ ImageToAscii é um programa escrito em C++ que converte imagens e vídeos em rep
 ### Saída: 
 ![Foto de exemplo](./cmake-build-debug/example.png)
 
+## Funcionalidades para adicionar:
+- [x] Suporte pra imagem
+- [x] Suporte pra videos
+- [x] Cores Ansi para videos
+- [ ] Cores ansi para fotos
+- [ ] Otimização do programa (multi thread)
+- [ ] Otimização de buffers
+- [ ] Suporte a GPU Nvidia CUDA (not sure)
+
 ## Licença
 Este projeto está licenciado sob a [MIT License](LICENSE).
 
