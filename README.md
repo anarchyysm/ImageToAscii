@@ -40,6 +40,8 @@ ImageToAscii é um programa escrito em C++ que converte imagens e vídeos em rep
 - [x] Suporte pra imagem
 - [x] Suporte pra videos
 - [x] Cores Ansi para videos
+- [x] Interface (temp)
+- [x] Upload video/image
 - [ ] Cores ansi para fotos
 - [ ] Otimização do programa (multi thread)
 - [ ] Otimização de buffers
