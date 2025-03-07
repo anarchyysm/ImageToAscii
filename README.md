@@ -42,7 +42,7 @@ make
 ou
 
 ```sh
- cd .. && cmake --build cmake-build-debug --target ConvertImageToAscii -j 10
+ cd .. && cmake --build cmake-build-debug --target ConvertImageToAscii -j $(nproc)
 
 ```
 
