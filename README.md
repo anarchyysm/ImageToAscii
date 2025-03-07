@@ -54,7 +54,7 @@ ou
 
 ## Exemplo:
 ### Saída: 
-![Foto de exemplo](./cmake-build-debug/example.png)
+![Foto de exemplo](./pics/exampleImage.png)
 
 ## Funcionalidades para adicionar:
 - [x] Suporte pra imagem
