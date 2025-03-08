@@ -10,13 +10,15 @@ class VideoProcessor {
     void displayVideo(const std::string &windowName);
     std::vector<cv::Mat> getPixelizedVideo(int blockSize);
     std::vector<cv::Mat> getResizedVideo(int newWidth, double aspectRatio, int blockSize);
-    void displayASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const;
+    std::vector<cv::Mat> getGrayResizedVideo(int newWidth, double aspectRatio, int blockSize);
+    void displayGrayASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const;
+    void displayColoredASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const;
+    void displayASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars, bool isColored) const;
     void displayPixelizedVideo(const std::string &windowName, int blockSize);
     void displayResizedVideo(const std::string &windowName);
-
   private:
     cv::VideoCapture video;
-    cv::Mat frame, frame_gray;
+    cv::Mat frame;
     int delay;
 };
 

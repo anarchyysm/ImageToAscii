@@ -5,6 +5,7 @@ int main() {
 
   std::string videoPath, imagePath;
   int opc;
+  bool isColored = true;
 
   // Entrada de dados
   std::cout << "Image to ASCII\n" << std::endl;
@@ -22,11 +23,21 @@ int main() {
     std::cout << "image path (inside cmake-build-debug): ";
     std::cin >> imagePath;
 
+    std::cout << "imagem colorida? 1(y)/0(n)";
+    std::cin >> opc;
+
+    if(opc == 0) isColored = false;
+
     try {
       ImageProcessor processor(imagePath);
-      cv::Mat resizedImg = processor.getResizedImage(150, 1.8);
+      cv::Mat image;
       std::string asciiChars = "  `.'`^,-~:;<>i!lI?+_1|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao23456789*#MW&8%B@";
-      processor.displayASCIIArt(resizedImg, asciiChars);
+      if(isColored){
+        image = processor.getResizedImage(320, 1.8, 5);
+      } else {
+        image = processor.getGrayResizedImage(320, 1.8, 5);
+      }
+      processor.displayASCIIArt(image, asciiChars, isColored);
       cv::waitKey(0);
     } catch (const std::exception &ex) {
       std::cerr << ex.what() << std::endl;
@@ -35,16 +46,26 @@ int main() {
     break;
   case 2:
     
+
     std::cout << "video path (inside cmake-build-debug): ";
     std::cin >> videoPath;
 
+    std::cout << "video colorido? 1(y)/0(n)";
+    std::cin >> opc;
+
+    if(opc == 0) isColored = false;
+    
     try {
       VideoProcessor processor(videoPath);
       std::vector<cv::Mat> video;
       std::string asciiChars = "  ` .'`^,-~:;<>i!lI?+_1|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao23456789*#MW&8%B@";
-      video = processor.getResizedVideo(320, 1.8, 5);
+      if(isColored){
+        video = processor.getResizedVideo(320, 1.8, 5);
+      } else {
+        video = processor.getGrayResizedVideo(320, 1.8, 5);
+      }
       while (1) {
-        processor.displayASCIIArt(video, asciiChars);
+        processor.displayASCIIArt(video, asciiChars, isColored);
       }
     } catch (const std::exception &ex) {
       std::cerr << ex.what() << std::endl;

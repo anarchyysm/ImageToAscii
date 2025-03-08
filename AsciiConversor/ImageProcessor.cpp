@@ -18,11 +18,22 @@ cv::Mat ImageProcessor::getPixelizedImage(int blockSize) const {
     return pixelizedImg;
 }
 
-cv::Mat ImageProcessor::getResizedImage(int newWidth, double aspectRatio) const {
+cv::Mat ImageProcessor::getResizedImage(int newWidth, double aspectRatio, int blocksize) const {
     double proportion = static_cast<double>(image.rows) / static_cast<double>(image.cols);
     int newHeight = static_cast<int>(newWidth * proportion / aspectRatio);
     cv::Mat resizedImage;
-    cv::resize(image, resizedImage, cv::Size(newWidth, newHeight));
+    cv::Mat pixelizedImg = getPixelizedImage(blocksize);
+    cv::resize(pixelizedImg, resizedImage, cv::Size(newWidth, newHeight));
+    return resizedImage;
+}
+
+cv::Mat ImageProcessor::getGrayResizedImage(int newWidth, double aspectRatio, int blocksize) const { 
+    double proportion = static_cast<double>(image.rows) / static_cast<double>(image.cols);
+    int newHeight = static_cast<int>(newWidth * proportion / aspectRatio);
+    cv::Mat resizedImage, image_gray;
+    cv::Mat pixelizedImg = getPixelizedImage(blocksize);
+    cv::cvtColor(pixelizedImg, image_gray, cv::COLOR_BGR2GRAY);
+    cv::resize(image_gray, resizedImage, cv::Size(newWidth, newHeight));
     return resizedImage;
 }
 
@@ -37,7 +48,29 @@ std::string getColorCodeImage(cv::Vec3b bgr){
   return code;
 }
 
-void ImageProcessor::displayASCIIArt(const cv::Mat& img, const std::string& asciiChars) const {
+std::string getColorCodeImage(uchar intensity){
+
+  std::string code = "\033[48;2;" + std::to_string(intensity) + ";" + std::to_string(intensity) + ";" + std::to_string(intensity) + "m";
+  return code;
+}
+
+
+void ImageProcessor::displayGrayASCIIArt(const cv::Mat& img, const std::string& asciiChars) const {
+    int numChars = asciiChars.length();
+    for (int y = 0; y < img.rows; ++y) {
+        std::string asciiLine;
+        for (int x = 0; x < img.cols; ++x){
+            int intensity = img.at<uchar>(y, x);
+            char asciiChar = asciiChars[intensity * numChars / 256];
+            std::string colorCode = getColorCodeImage(intensity);
+            asciiLine += colorCode + asciiChar + color::off;
+        }
+        std::cout << asciiLine << std::endl;
+    }
+    std::cout << std::flush;
+}
+
+void ImageProcessor::displayColoredASCIIArt(const cv::Mat& img, const std::string& asciiChars) const {
     int numChars = asciiChars.length();
     for (int y = 0; y < img.rows; ++y) {
         std::string asciiLine;
@@ -51,5 +84,11 @@ void ImageProcessor::displayASCIIArt(const cv::Mat& img, const std::string& asci
         std::cout << asciiLine << std::endl;
     }
     std::cout << std::flush;
+}
+
+void ImageProcessor::displayASCIIArt(const cv::Mat& img, const std::string& asciiChars, bool isColored = true) const {
+
+  isColored ? displayColoredASCIIArt(img, asciiChars) : displayGrayASCIIArt(img, asciiChars); 
+
 }
 
