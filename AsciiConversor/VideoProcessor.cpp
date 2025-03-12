@@ -1,4 +1,9 @@
 #include "VideoProcessor.hpp"
+#include <BinFiles/WriteBin.hpp>
+#include <BinFiles/ReadBin.hpp>
+#include <cstdlib>
+#include <ostream>
+
 
 VideoProcessor::VideoProcessor(const std::string &videoPath){
   video = cv::VideoCapture(videoPath);
@@ -121,11 +126,15 @@ std::string getColorCodeVideo(uchar intensity){
   return "\033[48;2;" + std::to_string(intensity) + ";" + std::to_string(intensity) + ";" + std::to_string(intensity) + "m";
 }
 
-void VideoProcessor::displayGrayASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const{
+std::vector<std::string> VideoProcessor::generateGrayASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const{
   int numChars = asciiChars.length(); 
+  std::vector<std::string> asciiFrames;
 
   for(const cv::Mat &frame : video){
     if(frame.empty()) continue;
+    
+    std::string frameAscii; // Reset frameAscii for each new frame
+    
     for(int y = 0; y < frame.rows; y++){      
       std::string asciiLine;
       for(int x = 0; x < frame.cols; ++x){
@@ -135,23 +144,24 @@ void VideoProcessor::displayGrayASCIIArt(const std::vector<cv::Mat> &video, cons
         char asciiChar = asciiChars[intensity * numChars / 256];
         asciiLine += colorCode + asciiChar + color::off; 
       }
-      std::cout << asciiLine << std::endl; 
+      frameAscii += asciiLine + "\n";
     }
-    std::cout << std::flush;
-
-    // gambiarra, o certo era usar cv::waitKey(delay); mas ele só é iniciado após uma serie de eventos na tela
-    // ou seja... pra ele funcionar é preciso iniciar uma tela, mesmo q seja em branco, e eu nao queria isso, pois ia poluir a tela do usuario
-    // com coisas sem sentido (tela preta sem nada), então eu adicionei o delay de forma manual com this_thread sleep e chrono passando o delay
-    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-    system("clear");
+    asciiFrames.push_back(frameAscii);
   }
+  return asciiFrames;
 }
 
-void VideoProcessor::displayColoredASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const{
-  int numChars = asciiChars.length(); 
+std::vector<std::string> VideoProcessor::generateColoredASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const{
+  int numChars = asciiChars.length();
+  std::vector<std::string> asciiFrames;
+  //std::string frameAscii;
+
 
   for(const cv::Mat &frame : video){
     if(frame.empty()) continue;
+    
+    std::string frameAscii; // Reset frameAscii for each new frame
+    
     for(int y = 0; y < frame.rows; y++){      
       std::string asciiLine;
       for(int x = 0; x < frame.cols; ++x){
@@ -161,20 +171,37 @@ void VideoProcessor::displayColoredASCIIArt(const std::vector<cv::Mat> &video, c
         std::string colorCode = getColorCodeVideo(pixelColor);
         asciiLine += colorCode + asciiChar + color::off; 
       }
-      std::cout << asciiLine << std::endl; 
+      frameAscii += asciiLine + "\n";
     }
-    std::cout << std::flush;
-
-    // gambiarra, o certo era usar cv::waitKey(delay); mas ele só é iniciado após uma serie de eventos na tela
-    // ou seja... pra ele funcionar é preciso iniciar uma tela, mesmo q seja em branco, e eu nao queria isso, pois ia poluir a tela do usuario
-    // com coisas sem sentido (tela preta sem nada), então eu adicionei o delay de forma manual com this_thread sleep e chrono passando o delay
-    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-    system("clear");
+    asciiFrames.push_back(frameAscii);
   }
+  return asciiFrames;
 }
 
 void VideoProcessor::displayASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars, bool isColored = true) const{
 
-  isColored ? displayColoredASCIIArt(video, asciiChars) : displayGrayASCIIArt(video, asciiChars);
+  std::vector<std::string> asciiFrames;
 
+  isColored ? asciiFrames = generateColoredASCIIArt(video, asciiChars) : asciiFrames = generateGrayASCIIArt(video, asciiChars);
+
+  WriteBin writer("ascii_video.bin");
+  writer.saveASCIIFrames(asciiFrames);
+  asciiFrames.clear();
+
+  ReadBin reader("ascii_video.bin");
+  std::vector<std::string> loadedFrames = reader.loadASCIIFrames();
+  
+  bool running = true;
+  while(running){
+    for (const std::string& frame : loadedFrames) {
+      // Clear the screen before displaying each frame
+      std::cout << "\033[2J" << "\033[H";
+      
+      // Display the current frame
+      std::cout << frame << std::flush;
+      
+      // Wait for the specified delay
+      std::this_thread::sleep_for(std::chrono::milliseconds(delay)); 
+    }
+  }
 }
