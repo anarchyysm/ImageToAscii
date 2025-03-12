@@ -7,11 +7,13 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 include_directories( ${OpenCV_INCLUDE_DIRS} )
-include_directories(AsciiConversor)
+include_directories(AsciiConversor AsciiConversor/BinFiles)
 
 add_executable(ConvertImageToAscii
     Main.cpp
     AsciiConversor/ImageProcessor.cpp
-    AsciiConversor/VideoProcessor.cpp)
+    AsciiConversor/VideoProcessor.cpp
+    AsciiConversor/BinFiles/WriteBin.cpp
+    AsciiConversor/BinFiles/ReadBin.cpp)
 
 target_link_libraries ( ConvertImageToAscii ${OpenCV_LIBS} )
