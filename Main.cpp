@@ -33,9 +33,9 @@ int main() {
       cv::Mat image;
       std::string asciiChars = "  `.'`^,-~:;<>i!lI?+_1|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao23456789*#MW&8%B@";
       if(isColored){
-        image = processor.getResizedImage(320, 1.8, 5);
+        image = processor.getResizedImage(240, 1.8, 5);
       } else {
-        image = processor.getGrayResizedImage(320, 1.8, 5);
+        image = processor.getGrayResizedImage(240, 1.8, 5);
       }
       processor.displayASCIIArt(image, asciiChars, isColored);
       cv::waitKey(0);
@@ -64,9 +64,7 @@ int main() {
       } else {
         video = processor.getGrayResizedVideo(320, 1.8, 5);
       }
-      while (1) {
-        processor.displayASCIIArt(video, asciiChars, isColored);
-      }
+      processor.displayASCIIArt(video, asciiChars, isColored);
     } catch (const std::exception &ex) {
       std::cerr << ex.what() << std::endl;
       return 1;
