@@ -1,9 +1,8 @@
 #include "VideoProcessor.hpp"
-#include <BinFiles/WriteBin.hpp>
-#include <BinFiles/ReadBin.hpp>
-#include <cstdlib>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/videoio.hpp>
 #include <ostream>
-
+#include <string>
 
 VideoProcessor::VideoProcessor(const std::string &videoPath){
   video = cv::VideoCapture(videoPath);
@@ -15,98 +14,41 @@ VideoProcessor::VideoProcessor(const std::string &videoPath){
   }
 }
 
-void VideoProcessor::displayVideo(const std::string &windowName) {        
-  cv::Mat frame_gray;
+void VideoProcessor::displayVideo(const std::string &windowName) {
+  
   while(video.read(frame)){
-    cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
-    cv::imshow(windowName, frame_gray);
-    
+    cv::imshow(windowName, frame);
+
     if (cv::waitKey(delay) >= 0) break;
   }
   cv::destroyWindow(windowName);
 }
 
-std::vector<cv::Mat> VideoProcessor::getPixelizedVideo(int blockSize) {
+cv::Mat VideoProcessor::PixelizeFrame(cv::Mat& frame, int blockSize) {
 
   cv::Mat smallFrame, pixelizedFrame;
-  std::vector<cv::Mat> pixelizedFrames;
+  cv::resize(frame, smallFrame, cv::Size(frame.cols / blockSize, frame.rows / blockSize), 0, 0, cv::INTER_LINEAR);
+  cv::resize(smallFrame, pixelizedFrame, cv::Size(frame.cols, frame.rows), 0, 0, cv::INTER_NEAREST);
 
-  if(!video.isOpened()) return std::vector<cv::Mat>();
-
-  video.set(cv::CAP_PROP_POS_FRAMES,0);
-
-  while(video.read(frame)){
-    //cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
-    cv::resize(frame, smallFrame, cv::Size(frame.cols / blockSize, frame.rows / blockSize), 0, 0, cv::INTER_LINEAR);
-    cv::resize(smallFrame, pixelizedFrame, cv::Size(frame.cols, frame.rows), 0, 0, cv::INTER_NEAREST);
-    
-    pixelizedFrames.push_back(pixelizedFrame.clone());
-  }  
-  return pixelizedFrames;
- }
-
-void VideoProcessor::displayPixelizedVideo(const std::string &windowName, int blockSize){
-  std::vector<cv::Mat> pixelizedFrames = getPixelizedVideo(blockSize);
-  
-  if (pixelizedFrames.empty()) return;
-
-  for(const cv::Mat &frame : pixelizedFrames){
-    cv::imshow(windowName, frame);
-    if(cv::waitKey(delay) == 'q') break;
-  } 
+  return pixelizedFrame;
 }
 
-std::vector<cv::Mat> VideoProcessor::getResizedVideo(int newWidth, double aspectRatio, int blockSize){
+cv::Mat VideoProcessor::ResizeFrame(cv::Mat& frame, int newWidth, double aspectRatio){
 
-  std::vector<cv::Mat> pixelizedFrames = getPixelizedVideo(blockSize);
+  cv::Mat resizedFrame;
+  double proportion = static_cast<int>(frame.rows) / static_cast<double>(frame.cols);
+  int newHeight = static_cast<int>(newWidth * proportion / aspectRatio);  
+  cv::resize(frame, resizedFrame, cv::Size(newWidth, newHeight));
 
-  if(pixelizedFrames.empty()) return std::vector<cv::Mat>();
-
-  std::vector<cv::Mat> resizedFrames;
-  cv::Mat resizedFrame;  
-
-  double proportion = static_cast<int>(pixelizedFrames[0].rows) / static_cast<double>(pixelizedFrames[0].cols);
-  int newHeight = static_cast<int>(newWidth * proportion / aspectRatio);
-
-  for(const cv::Mat &frame : pixelizedFrames){
-    cv::resize(frame, resizedFrame, cv::Size(newWidth, newHeight));
-    resizedFrames.push_back(resizedFrame.clone());
-  }
-
-  return resizedFrames; 
+  return resizedFrame;
 }
 
-std::vector<cv::Mat> VideoProcessor::getGrayResizedVideo(int newWidth, double aspectRatio, int blockSize){
+cv::Mat VideoProcessor::toGrayFrame(cv::Mat& frame){
 
-  cv::Mat frame_gray;
-  std::vector<cv::Mat> pixelizedFrames = getPixelizedVideo(blockSize);
+  cv::Mat grayFrame;
+  cv::cvtColor(frame, grayFrame, cv::COLOR_BGR2GRAY);
 
-  if(pixelizedFrames.empty()) return std::vector<cv::Mat>();
-
-  std::vector<cv::Mat> resizedFrames;
-  cv::Mat resizedFrame;  
-
-  double proportion = static_cast<int>(pixelizedFrames[0].rows) / static_cast<double>(pixelizedFrames[0].cols);
-  int newHeight = static_cast<int>(newWidth * proportion / aspectRatio);
-
-  for(const cv::Mat &frame : pixelizedFrames){
-    cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
-    cv::resize(frame_gray, resizedFrame, cv::Size(newWidth, newHeight));
-    resizedFrames.push_back(resizedFrame.clone());
-  }
-
-  return resizedFrames; 
-}
-
-void VideoProcessor::displayResizedVideo(const std::string &windowName){
-  std::vector<cv::Mat> resizedFrames = getResizedVideo(150, 1.8, 6);
-  
-  if(resizedFrames.empty()) return;   
-
-  for(const cv::Mat &frame : resizedFrames){
-    cv::imshow(windowName, frame);
-    if(cv::waitKey(delay) == 'q') break;
-  }
+  return grayFrame;
 }
 
 std::string getColorCodeVideo(cv::Vec3b bgr){
@@ -114,94 +56,83 @@ std::string getColorCodeVideo(cv::Vec3b bgr){
   b = bgr[0];
   g = bgr[1];
   r = bgr[2];
-  
+
   std::string code = "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
 
   return code;
 }
-
 
 // simula as cores de tons de branco e preto, ja quer grayscale tem apenas 1 canal de cor e não 3
 std::string getColorCodeVideo(uchar intensity){
   return "\033[48;2;" + std::to_string(intensity) + ";" + std::to_string(intensity) + ";" + std::to_string(intensity) + "m";
 }
 
-std::vector<std::string> VideoProcessor::generateGrayASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const{
-  int numChars = asciiChars.length(); 
-  std::vector<std::string> asciiFrames;
-
-  for(const cv::Mat &frame : video){
-    if(frame.empty()) continue;
-    
-    std::string frameAscii; // Reset frameAscii for each new frame
-    
-    for(int y = 0; y < frame.rows; y++){      
-      std::string asciiLine;
-      for(int x = 0; x < frame.cols; ++x){
-        cv::Vec3b pixelColor = frame.at<cv::Vec3b>(y, x);
-        int intensity = frame.at<uchar>(y, x); 
-        std::string colorCode = getColorCodeVideo(intensity);
-        char asciiChar = asciiChars[intensity * numChars / 256];
-        asciiLine += colorCode + asciiChar + color::off; 
-      }
-      frameAscii += asciiLine + "\n";
-    }
-    asciiFrames.push_back(frameAscii);
-  }
-  return asciiFrames;
-}
-
-std::vector<std::string> VideoProcessor::generateColoredASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars) const{
+std::string VideoProcessor::generateGrayASCIIArt(const cv::Mat &frame, const std::string &asciiChars) const{
   int numChars = asciiChars.length();
-  std::vector<std::string> asciiFrames;
-  //std::string frameAscii;
-
-
-  for(const cv::Mat &frame : video){
-    if(frame.empty()) continue;
-    
-    std::string frameAscii; // Reset frameAscii for each new frame
-    
-    for(int y = 0; y < frame.rows; y++){      
-      std::string asciiLine;
-      for(int x = 0; x < frame.cols; ++x){
-        cv::Vec3b pixelColor = frame.at<cv::Vec3b>(y, x);
-        int intensity = (pixelColor[0] + pixelColor[1] + pixelColor[2]) / 3; 
-        char asciiChar = asciiChars[intensity * numChars / 256];
-        std::string colorCode = getColorCodeVideo(pixelColor);
-        asciiLine += colorCode + asciiChar + color::off; 
-      }
-      frameAscii += asciiLine + "\n";
+  std::string frameAscii;
+  frameAscii.reserve(frame.rows * (frame.cols + 1));
+  
+  for(int y = 0; y < frame.rows; y++){
+    std::string asciiLine;
+    for(int x = 0; x < frame.cols; ++x){
+      cv::Vec3b pixelColor = frame.at<cv::Vec3b>(y, x);
+      int intensity = frame.at<uchar>(y, x);
+      std::string colorCode = getColorCodeVideo(intensity);
+      char asciiChar = asciiChars[intensity * numChars / 256];
+      asciiLine += colorCode + asciiChar + color::off;
     }
-    asciiFrames.push_back(frameAscii);
+    frameAscii += asciiLine + "\n";
   }
-  return asciiFrames;
+  //std::cout << std::flush;
+  // gambiarra, o certo era usar cv::waitKey(delay); mas ele só é iniciado após uma serie de eventos na tela
+  // ou seja... pra ele funcionar é preciso iniciar uma tela, mesmo q seja em branco, e eu nao queria isso, pois ia poluir a tela do usuario
+  // com coisas sem sentido (tela preta sem nada), então eu adicionei o delay de forma manual com this_thread sleep e chrono passando o delay
+  /*std::this_thread::sleep_for(std::chrono::milliseconds(delay));*/
+  /*system("clear");*/
+  return frameAscii;
 }
 
-void VideoProcessor::displayASCIIArt(const std::vector<cv::Mat> &video, const std::string &asciiChars, bool isColored = true) const{
+std::string VideoProcessor::generateColoredASCIIArt(const cv::Mat &frame, const std::string &asciiChars) const{
+  int numChars = asciiChars.length();
+  std::string frameAscii;
+  frameAscii.reserve(frame.rows * (frame.cols + 1));
 
-  std::vector<std::string> asciiFrames;
-
-  isColored ? asciiFrames = generateColoredASCIIArt(video, asciiChars) : asciiFrames = generateGrayASCIIArt(video, asciiChars);
-
-  WriteBin writer("ascii_video.bin");
-  writer.saveASCIIFrames(asciiFrames);
-  asciiFrames.clear();
-
-  ReadBin reader("ascii_video.bin");
-  std::vector<std::string> loadedFrames = reader.loadASCIIFrames();
-  
-  bool running = true;
-  while(running){
-    for (const std::string& frame : loadedFrames) {
-      // Clear the screen before displaying each frame
-      std::cout << "\033[2J" << "\033[H";
-      
-      // Display the current frame
-      std::cout << frame << std::flush;
-      
-      // Wait for the specified delay
-      std::this_thread::sleep_for(std::chrono::milliseconds(delay)); 
+  for(int y = 0; y < frame.rows; y++){
+    std::string asciiLine;
+    for(int x = 0; x < frame.cols; ++x){
+      cv::Vec3b pixelColor = frame.at<cv::Vec3b>(y, x);
+      int intensity = (pixelColor[0] + pixelColor[1] + pixelColor[2]) / 3;
+      char asciiChar = asciiChars[intensity * numChars / 256];
+      std::string colorCode = getColorCodeVideo(pixelColor);
+      asciiLine += colorCode + asciiChar + color::off;
     }
+    frameAscii += asciiLine + "\n";
   }
+
+  return frameAscii;
+}
+
+void VideoProcessor::displayASCIIArt(const std::string &asciiChars, int width, double aspectRatio, int blockSize, bool isColored = true){
+  
+  if(!video.isOpened()){
+    std::cerr << "video dont oppened!\n";
+    return;
+  }
+
+  video.set(cv::CAP_PROP_POS_FRAMES, 0);
+
+  cv::Mat frame;
+  while(video.read(frame)){
+    frame = PixelizeFrame(frame, blockSize);
+    frame = ResizeFrame(frame, width, aspectRatio);
+    if(!isColored){
+      frame = toGrayFrame(frame); 
+    }
+    std::string frameAscii =  isColored ? generateColoredASCIIArt(frame, asciiChars) : generateGrayASCIIArt(frame, asciiChars);
+
+    std::cout << "\033[2J\033[1;1H" << frameAscii << std::flush;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+  }
+ 
 }
