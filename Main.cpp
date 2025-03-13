@@ -59,12 +59,10 @@ int main() {
       VideoProcessor processor(videoPath);
       std::vector<cv::Mat> video;
       std::string asciiChars = "  ` .'`^,-~:;<>i!lI?+_1|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao23456789*#MW&8%B@";
-      if(isColored){
-        video = processor.getResizedVideo(320, 1.8, 5);
-      } else {
-        video = processor.getGrayResizedVideo(320, 1.8, 5);
+      while(1){ 
+        processor.displayASCIIArt(asciiChars, 300, 1.8, 5, isColored);
       }
-      processor.displayASCIIArt(video, asciiChars, isColored);
+
     } catch (const std::exception &ex) {
       std::cerr << ex.what() << std::endl;
       return 1;
