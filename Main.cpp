@@ -1,41 +1,92 @@
 #include "AsciiConversor/ImageProcessor.hpp"
 #include "AsciiConversor/VideoProcessor.hpp"
+#include <getopt.h>
 
-int main() {
+int main(int argc, char *argv[]) {
 
-  std::string videoPath, imagePath;
-  int opc;
+  int width = 320;
+  float aspectRatio = 1.8;
+  int blockSize = 5;
   bool isColored = true;
+  std::string asciiChars = "  `.'`^,-~:;<>i!lI?+_1|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao23456789*#MW&8%B@";
+  std::string videoPath = "";
+  std::string imagePath = "";
 
-  // Entrada de dados
-  std::cout << "Image to ASCII\n" << std::endl;
-  std::cout << "Options: " << std::endl;
-  std::cout << "1. Image " << std::endl;
-  std::cout << "2. Video " << std::endl;
-  std::cout << "3. Help  \n" << std::endl;
-  std::cout << "Option: ";
+  static struct option long_options[] = {
+    {"width", required_argument, 0, 'w'},
+    {"aspect-ratio", required_argument, 0, 'a'},
+    {"blockSize", required_argument, 0, 'b'},
+    {"ascii-chars", required_argument, 0, 'c'},
+    {"isColored", no_argument, 0, 'i'},
+    {"isNotColored", no_argument, 0, 'n'},
+    {"video-path", required_argument, 0, 'v'},
+    {"image-path", required_argument, 0, 'p'},
+    {"help", no_argument, 0, 'h'},
+    {0, 0, 0, 0}
+  };
 
-  // temp
-  std::cin >> opc;
+  int opt;
+  int option_index = 0;
+  while ((opt = getopt_long(argc, argv, "w:a:b:c:in:v:p:h", long_options, &option_index)) != -1) {
+    switch (opt) {
+      case 'w':
+        width = std::stoi(optarg);
+        break;
+      case 'a':
+        aspectRatio = std::stof(optarg);
+        break;
+      case 'b':
+        blockSize = std::stoi(optarg);
+        break;
+      case 'c':
+        asciiChars = optarg;
+        break;
+      case 'i':
+        isColored = true;
+        break;
+      case 'n':
+        isColored = false;
+        break;
+      case 'v':
+        videoPath = optarg;
+        break;
+      case 'p':
+        imagePath = optarg;
+        break;
+      case 'h':
+        std::cout << "Usage: " << argv[0] << " [options]\n";
+        std::cout << "Options:\n";
+        std::cout << "  --width, -w          Set width (default: 320)\n";
+        std::cout << "  --aspect-ratio, -a   Set aspect ratio (default: 1.8)\n";
+        std::cout << "  --blockSize, -b      Set block size (default: 5)\n";
+        std::cout << "  --ascii-chars, -c    Set ASCII characters\n";
+        std::cout << "  --isColored, -i      Enable colored output (default: true)\n";
+        std::cout << "  --isNotColored, -n   Disable colored output\n";
+        std::cout << "  --video-path, -v     Path to video file\n";
+        std::cout << "  --image-path, -p     Path to image file\n";
+        std::cout << "  --help, -h           Show this help message\n";
+        std::cout << "Note: Either --video-path or --image-path is required\n";
+        return 0;
+      default:
+        std::cerr << "Invalid option. Use --help for usage information.\n";
+        return 1;
+    }
+  }
 
-  switch (opc) {
-  case 1:
-    std::cout << "image path (inside cmake-build-debug): ";
-    std::cin >> imagePath;
+  if (videoPath.empty() && imagePath.empty()) {
+    std::cerr << "Error: Please specify either --video-path or --image-path\n";
+    std::cerr << "Use --help for usage information\n";
+    return 1;
+  }
 
-    std::cout << "imagem colorida? 1(y)/0(n)";
-    std::cin >> opc;
-
-    if(opc == 0) isColored = false;
-
+  if (!imagePath.empty()) {
     try {
       ImageProcessor processor(imagePath);
       cv::Mat image;
-      std::string asciiChars = "  `.'`^,-~:;<>i!lI?+_1|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao23456789*#MW&8%B@";
-      if(isColored){
-        image = processor.getResizedImage(240, 1.8, 5);
+      if (isColored) {
+        image = processor.getResizedImage(width, aspectRatio, blockSize);
       } else {
-        image = processor.getGrayResizedImage(240, 1.8, 5);
+        image = processor.getGrayResizedImage(width, aspectRatio, blockSize);
       }
       processor.displayASCIIArt(image, asciiChars, isColored);
       cv::waitKey(0);
@@ -43,35 +94,18 @@ int main() {
       std::cerr << ex.what() << std::endl;
       return 1;
     }
-    break;
-  case 2:
-    
+  }
 
-    std::cout << "video path (inside cmake-build-debug): ";
-    std::cin >> videoPath;
-
-    std::cout << "video colorido? 1(y)/0(n)";
-    std::cin >> opc;
-
-    if(opc == 0) isColored = false;
-    
+  else if (!videoPath.empty()) {
     try {
       VideoProcessor processor(videoPath);
-      std::vector<cv::Mat> video;
-      std::string asciiChars = "  ` .'`^,-~:;<>i!lI?+_1|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao23456789*#MW&8%B@";
-      while(1){ 
-        processor.displayASCIIArt(asciiChars, 300, 1.8, 5, isColored);
+      while (1) {
+        processor.displayASCIIArt(asciiChars, width, aspectRatio, blockSize, isColored);
       }
-
     } catch (const std::exception &ex) {
       std::cerr << ex.what() << std::endl;
       return 1;
     }
-    break;
-  case 3:
-    std::cout << "Please, doesnt upload long videos, this take so much processing, wait for updates :)" << std::endl;
-    std::cout << "The image/video needs to be inside of dir cmake-build-debug/<image path>" << std::endl;
-    break;
   }
 
   return 0;
