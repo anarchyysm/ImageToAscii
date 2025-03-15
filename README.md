@@ -63,9 +63,9 @@ ou
 - [x] Interface (temp)
 - [x] Upload video/image
 - [x] Cores ansi para fotos
-- [ ] Otimização do programa (multi thread)
-- [ ] Otimização de buffers
-- [ ] Suporte a GPU Nvidia CUDA (not sure)
+- [ ] ~Otimização do programa (multi thread)~ não é mais necessario
+- [x] Otimização de buffers
+- [ ] ~Suporte a GPU Nvidia CUDA (not sure)~ não é mais necessario
 - [ ] Interface grafica - GUI
 
 ## Licença
