@@ -17,44 +17,36 @@ ImageToAscii é um programa escrito em C++ que converte imagens e vídeos em rep
 ### Requisitos
 - CMake
 - OpenCV instalado
+- qt5-base e qt5-wayland instalado(para o gui)
 - Compilador C++ (GCC, Clang, MSVC, etc.)
 
 ### Compilando o projeto
 
-Crie o diretorio e entre nele:
+Dê permissão de run pro "install.sh":
 ```sh
- mkdir build
- cd build
+ chmod +x install.sh
 
 ```
-Dentro do diretorio "build", execute cmake 
+Rode o programa e selecione a instalação: (somente CLI, ou CLI e GUI juntas)
 ```sh
-cmake ..
-
-```
-
-Após configuração bem-sucedida, compile o projeto:
-```sh
-make
-
-```
-
-ou
-
-```sh
- cd .. && cmake --build build --target ConvertImageToAscii -j $(nproc)
+./install.sh
 
 ```
 
 ### Executando o programa
 
 ```sh
-./ConvertImageToAscii
+./ConvertImageToAscii 
+ou 
+./ImageToAsciiGUI
 ```
 
 ## Exemplo:
-### Saída: 
-![Foto de exemplo](./pics/exampleImage.png)
+### User Interface: 
+![Video exemplo](./pics/GUI.mp4)
+
+### Command Line:
+![Video exemplo](./pics/CLI.mp4)
 
 ## Funcionalidades para adicionar:
 - [x] Suporte pra imagem
@@ -63,10 +55,8 @@ ou
 - [x] Interface (temp)
 - [x] Upload video/image
 - [x] Cores ansi para fotos
-- [ ] ~Otimização do programa (multi thread)~ não é mais necessario
 - [x] Otimização de buffers
-- [ ] ~Suporte a GPU Nvidia CUDA (not sure)~ não é mais necessario
-- [ ] Interface grafica - GUI
+- [x] Interface grafica - GUI
 
 ## Licença
 Este projeto está licenciado sob a [MIT License](LICENSE).
