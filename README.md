@@ -43,6 +43,7 @@ ou
 
 ## Exemplo:
 ### User Interface: 
+(only tested on arch linux)
 ![Video exemplo](./pics/GUI.gif)
 
 ### Command Line:
