@@ -17,7 +17,7 @@ ImageToAscii é um programa escrito em C++ que converte imagens e vídeos em rep
 ### Requisitos
 - CMake
 - OpenCV instalado
-- qt5-base e qt5-wayland instalado(para o gui)
+- qt5-base e qt5-wayland instalado (opcional se quiser GUI)
 - Compilador C++ (GCC, Clang, MSVC, etc.)
 
 ### Compilando o projeto
