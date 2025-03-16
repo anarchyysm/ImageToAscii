@@ -46,7 +46,7 @@ ou
 ![Video exemplo](./pics/GUI.gif)
 
 ### Command Line:
-![Video exemplo](./pics/CLI.mp4)
+![Video exemplo](./pics/CLI.gif)
 
 ## Funcionalidades para adicionar:
 - [x] Suporte pra imagem
