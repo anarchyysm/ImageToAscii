@@ -43,7 +43,7 @@ ou
 
 ## Exemplo:
 ### User Interface: 
-![Video exemplo](./pics/GUI.mp4)
+![Video exemplo](./pics/GUI.gif)
 
 ### Command Line:
 ![Video exemplo](./pics/CLI.mp4)
